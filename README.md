@@ -16,12 +16,12 @@ You can then access the produver API on https://localhost:8001/swagger and the c
 
 Useful commands
 To create a topic via the CLI run the following command
-`docker exec dotnet-kafka-kafka-1 kafka-topics --bootstrap-server dotnet-kafka-kafka-1:9092 --create --topic users`
+`docker exec broker kafka-topics --bootstrap-server broker:9092 --create --topic users`
 
 To publish messages to the topic run the following command
 
-`docker exec --interactive --tty dotnet-kafka-kafka-1 kafka-console-producer --bootstrap-server dotnet-kafka-kafka-1:9092 --topic users`
+`docker exec --interactive --tty broker kafka-console-producer --bootstrap-server broker:9092 --topic users`
 
 To subscribe to messages from the topic run the following command
 
-`docker exec --interactive --tty dotnet-kafka-kafka-1 kafka-console-consumer --bootstrap-server dotnet-kafka-kafka-1:9092 --topic users --from-beginning`
+`docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 --topic users --from-beginning`
