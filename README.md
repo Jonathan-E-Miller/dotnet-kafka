@@ -1,2 +1,27 @@
 # dotnet-kafka
 A repository to demonstrate using kafka in dotnet.
+
+## Prerequisites
+* Docker desktop
+* .NET 6.0
+
+## Getting Started
+To start all containers run the following commands
+
+`docker compose build`
+
+`docker compose up`
+
+You can then access the produver API on https://localhost:8001/swagger and the consumer MVC web app on https://localhost:8002
+
+Useful commands
+To create a topic via the CLI run the following command
+`docker exec dotnet-kafka-kafka-1 kafka-topics --bootstrap-server dotnet-kafka-kafka-1:9092 --create --topic users`
+
+To publish messages to the topic run the following command
+
+`docker exec --interactive --tty dotnet-kafka-kafka-1 kafka-console-producer --bootstrap-server dotnet-kafka-kafka-1:9092 --topic users`
+
+To subscribe to messages from the topic run the following command
+
+`docker exec --interactive --tty dotnet-kafka-kafka-1 kafka-console-consumer --bootstrap-server dotnet-kafka-kafka-1:9092 --topic users --from-beginning`
