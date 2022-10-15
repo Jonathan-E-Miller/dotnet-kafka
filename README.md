@@ -18,6 +18,9 @@ Useful commands
 To create a topic via the CLI run the following command
 `docker exec broker kafka-topics --bootstrap-server broker:9092 --create --topic users`
 
+You can see a list of all topics by running the following command
+`docker exec broker kafka-topics --bootstrap-server broker:9092 --list`
+
 To publish messages to the topic run the following command
 
 `docker exec --interactive --tty broker kafka-console-producer --bootstrap-server broker:9092 --topic users`

@@ -1,7 +1,10 @@
+using MvcConsumer.Workers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHostedService<KafkaWorker>();
 
 var app = builder.Build();
 
