@@ -33,7 +33,7 @@ namespace MvcConsumer.Workers
                         var cr = consumer.Consume(1000);
                         if (cr != null)
                         {
-                            Console.WriteLine($"Consumed event from topic 'Users' with key {cr.Message.Key,-10} and value {cr.Message.Value}");
+                            _logger.Log(LogLevel.Information, $"Consumed event from topic 'Users' with key {cr.Message.Key,-10} and value {cr.Message.Value}");
                         }
                     }
                 }

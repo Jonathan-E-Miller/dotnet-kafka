@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHostedService<KafkaWorker>();
+builder.Services.AddLogging(o => o.AddSeq("http://seq"));
 
 var app = builder.Build();
 
