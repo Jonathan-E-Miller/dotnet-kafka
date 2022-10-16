@@ -12,7 +12,9 @@ To start all containers run the following commands
 
 `docker compose up`
 
-You can then access the produver API on https://localhost:8001/swagger and the consumer MVC web app on https://localhost:8002
+You can then access the producer API on https://localhost:8001/swagger and the consumer MVC web app on https://localhost:8002
+
+You can view application logs at http://localhost:5342/#/events
 
 Useful commands
 To create a topic via the CLI run the following command
