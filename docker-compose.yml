@@ -49,3 +49,17 @@ services:
       - "5342:80"
     environment:
       - ACCEPT_EULA=Y
+
+  mongodb_container:
+    image: mongo:latest
+    container_name: mongo_container
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+
+volumes:
+  mongodb_data_container:

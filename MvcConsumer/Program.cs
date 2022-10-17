@@ -1,4 +1,5 @@
 using MvcConsumer.Workers;
+using Persistence.Mongo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHostedService<KafkaWorker>();
 builder.Services.AddLogging(o => o.AddSeq("http://seq"));
+builder.Services.AddSingleton(typeof(IMongoRepository<>), typeof(MongoRepository<>));
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
 
 var app = builder.Build();
 

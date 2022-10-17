@@ -17,11 +17,14 @@ You can then access the producer API on https://localhost:8001/swagger and the c
 You can view application logs at http://localhost:5342/#/events
 
 Useful commands
-To create a topic via the CLI run the following command
+To create a topic
 `docker exec broker kafka-topics --bootstrap-server broker:9092 --create --topic users`
 
-You can see a list of all topics by running the following command
+List all topics
 `docker exec broker kafka-topics --bootstrap-server broker:9092 --list`
+
+Delete topic
+`docker exec broker kafka-topics --delete --bootstrap-server broker:9092 --topic users`
 
 To publish messages to the topic run the following command
 

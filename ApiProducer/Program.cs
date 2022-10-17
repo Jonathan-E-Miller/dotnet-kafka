@@ -1,11 +1,16 @@
 using ApiProducer;
 using ApiProducer.Interfaces;
+using Persistence.Mongo;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddLogging(o => o.AddSeq("http://seq"));
 builder.Services.AddSingleton<IKafkaContainer, KafkaContainer>();
+builder.Services.AddScoped(typeof(IMongoRepository<>), typeof(MongoRepository<>));
+
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -20,7 +25,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirection();  
 
 app.UseAuthorization();
 

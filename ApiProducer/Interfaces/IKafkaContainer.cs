@@ -5,6 +5,6 @@ namespace ApiProducer.Interfaces
     public interface IKafkaContainer
     {
         Task CreateTopic(string topicName);
-        void ProduceMessage(KafkaMessageRequest request);
+        Task ProduceMessage(KafkaMessageRequest request);
     }
 }

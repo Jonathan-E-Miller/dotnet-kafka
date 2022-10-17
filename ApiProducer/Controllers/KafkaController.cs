@@ -1,6 +1,8 @@
 ﻿using ApiProducer.Interfaces;
 using ApiProducer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Persistence.Models;
+using Persistence.Mongo;
 
 namespace ApiProducer.Controllers
 {
@@ -8,11 +10,13 @@ namespace ApiProducer.Controllers
     {
         private readonly ILogger _logger;
         private readonly IKafkaContainer _kafkaContainer;
+        private readonly IMongoRepository<Topic> _mongoRepository;
 
-        public KafkaController(ILogger<KafkaController> logger, IKafkaContainer kafkaContainer)
+        public KafkaController(ILogger<KafkaController> logger, IKafkaContainer kafkaContainer, IMongoRepository<Topic> mongoRepository)
         {
             _logger = logger;
             _kafkaContainer = kafkaContainer;
+            _mongoRepository = mongoRepository;
         }
 
         [Route("api/create")]
@@ -23,6 +27,12 @@ namespace ApiProducer.Controllers
             try
             {
                 await _kafkaContainer.CreateTopic(topic);
+                Topic topicObj = new Topic()
+                {
+                    Name = topic,
+                    Messages = new List<Message>()
+                };
+                await _mongoRepository.InsertOneAsync(topicObj);
             }
             catch (Exception ex)
             {

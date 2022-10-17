@@ -33,7 +33,7 @@ namespace ApiProducer
             }
         }
 
-        public void ProduceMessage(KafkaMessageRequest request)
+        public async Task ProduceMessage(KafkaMessageRequest request)
         {
             var kafkaConfiguration = _configuration.GetSection("Kafka").GetChildren();
             var config = new List<KeyValuePair<string, string>>();
@@ -41,18 +41,7 @@ namespace ApiProducer
             kafkaConfiguration.ToList().ForEach(x => config.Add(new KeyValuePair<string, string>(x.Key, x.Value)));
             using (var producer = new ProducerBuilder<string, string>(config).Build())
             {
-                producer.Produce(request.Topic, new Message<string, string> { Key = request.User, Value = request.Message }, (deliveryReport) =>
-                {
-                    if (deliveryReport.Error.Code != ErrorCode.NoError)
-                    {
-                        _logger.LogError("Failed to send message to broker");
-                    }
-                    else
-                    {
-                        _logger.LogInformation($"Produced event to topic {request.Topic}: key = {request.User,-10} value = {request.Message}");
-                    }
-                });
-
+                await producer.ProduceAsync(request.Topic, new Message<string, string> { Key = request.User, Value = request.Message });
             }
         }
     }
