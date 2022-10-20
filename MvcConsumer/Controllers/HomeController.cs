@@ -10,18 +10,17 @@ namespace MvcConsumer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IConfiguration _configuration;
         private readonly IMongoRepository<Topic> _repository;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration configuration, IMongoRepository<Topic> repository)
+        public HomeController(ILogger<HomeController> logger, IMongoRepository<Topic> repository)
         {
             _logger = logger;
-            _configuration = configuration;
             _repository = repository;
         }
 
         public IActionResult Index()
         {
+            _logger.LogInformation("HomeController.Index called");
             List<Topic> all = _repository.All().ToList();
             List<TopicViewModel> topics = all.Select(x => new TopicViewModel()
             {
@@ -41,18 +40,30 @@ namespace MvcConsumer.Controllers
 
         public async Task<IActionResult> Topic(string topicId)
         {
+            _logger.LogInformation($"HomeController.Topic called for {topicId}");
             Topic match = await _repository.FindById(topicId);
 
             TopicViewModel viewModel = new TopicViewModel()
             {
-                Name = match.Name,
-                Messages = match.Messages.Select(x => new MessageViewModel()
-                {
-                    Sender = x.User,
-                    Text = x.Text,
-                    Received = x.ReceivedAt
-                }).ToList()
+                Name = "Unknow Topic",
+                Messages = new List<MessageViewModel>(),
+                LastReceived = DateTime.MinValue.ToString()
             };
+
+            if (match != null)
+            {
+                viewModel = new TopicViewModel()
+                {
+                    Name = match.Name,
+                    Messages = match.Messages.Select(x => new MessageViewModel()
+                    {
+                        Sender = x.User,
+                        Text = x.Text,
+                        Received = x.ReceivedAt
+                    }).ToList()
+                };
+            }
+
             return View(viewModel);
         }
 

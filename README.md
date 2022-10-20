@@ -33,3 +33,6 @@ To publish messages to the topic run the following command
 To subscribe to messages from the topic run the following command
 
 `docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 --topic users --from-beginning`
+
+## Credit
+https://medium.com/@marekzyla95/mongo-repository-pattern-700986454a0e
