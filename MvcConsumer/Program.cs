@@ -5,10 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddHostedService<KafkaWorker>();
-builder.Services.AddLogging(o => o.AddSeq("http://seq"));
 builder.Services.AddSingleton(typeof(IMongoRepository<>), typeof(MongoRepository<>));
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
+builder.Services.AddLogging(o => o.AddSeq("http://seq"));
+builder.Services.AddHostedService<KafkaWorker>();
 
 var app = builder.Build();
 

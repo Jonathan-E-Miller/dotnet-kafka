@@ -13,6 +13,7 @@ namespace MvcConsumer.Workers
 
         public KafkaWorker(ILogger<KafkaWorker> logger, IConfiguration configuration, IMongoRepository<Topic> repository)
         {
+            logger.LogInformation("Constructing");
             _logger = logger;
             _configuration = configuration;
             _repository = repository;
@@ -21,62 +22,83 @@ namespace MvcConsumer.Workers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("Starting background");
             var config = _configuration.GetSection("Kafka").GetChildren();
 
             var kafkaSettings = new List<KeyValuePair<string, string>>();
 
             config.ToList().ForEach(x => kafkaSettings.Add(new KeyValuePair<string, string>(x.Key, x.Value)));
 
-            using (var consumer = new ConsumerBuilder<string, string>(kafkaSettings).Build())
+            _logger.LogInformation("Settings Consumed");
+
+            await Task.Run(() => WorkerMethodAsync(stoppingToken, kafkaSettings));
+
+            _logger.LogInformation("Kafka Consumer has stopped");
+        }
+
+        private async void WorkerMethodAsync(CancellationToken stoppingToken, List<KeyValuePair<string, string>> kafkaSettings)
+        {
+            try
             {
-                try
+                using (var consumer = new ConsumerBuilder<string, string>(kafkaSettings).Build())
                 {
-                    while (!stoppingToken.IsCancellationRequested)
+                    _logger.LogInformation("Inside using");
+                    try
                     {
-                        var topics = _repository.All();
-                        var newTopics = new List<string>();
-                        foreach (Topic topic in topics)
+                        while (!stoppingToken.IsCancellationRequested)
                         {
-                            if (!_topics.Contains(topic.Name))
+                            var topics = _repository.All();
+                            var newTopics = new List<string>();
+                            foreach (Topic topic in topics)
                             {
-                                _topics.Add(topic.Name);
-                                newTopics.Add(topic.Name);
-                            }
-                        }
-
-                        if (newTopics.Any())
-                        {
-                            consumer.Subscribe(_topics);
-                        }
-
-                        var cr = consumer.Consume(1000);
-                        if (cr != null)
-                        {
-                            Topic topic = await _repository.FindOneAsync(x => x.Name == cr.Topic);
-                            if (topic != null)
-                            {
-                                topic.Messages.Add(new Message()
+                                if (!_topics.Contains(topic.Name))
                                 {
-                                    User = cr.Message.Key,
-                                    Text = cr.Message.Value
-                                });
-
-                                await _repository.ReplaceOneAsync(topic);
+                                    _topics.Add(topic.Name);
+                                    newTopics.Add(topic.Name);
+                                }
                             }
-                            _logger.Log(LogLevel.Information, $"Consumed event from topic {cr.Topic} with key {cr.Message.Key,-10} and value {cr.Message.Value}");
+
+                            if (newTopics.Any())
+                            {
+                                _logger.LogInformation($"Subscibing to {_topics.Count} topics");
+                                consumer.Subscribe(_topics);
+                            }
+
+                            ConsumeResult<string, string> cr = consumer.Consume(1000);
+                            if (cr != null)
+                            {
+                                Topic topic = await _repository.FindOneAsync(x => x.Name == cr.Topic);
+                                if (topic != null)
+                                {
+                                    topic.Messages.Add(new Message()
+                                    {
+                                        User = cr.Message.Key,
+                                        Text = cr.Message.Value,
+                                        ReceivedAt = DateTime.Now
+                                    });
+
+                                    await _repository.ReplaceOneAsync(topic);
+                                }
+                                _logger.Log(LogLevel.Information, $"Consumed event from topic {cr.Topic} with key {cr.Message.Key,-10} and value {cr.Message.Value}");
+                            }
                         }
                     }
-                }
 
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message);
-                }
-                finally
-                {
-                    consumer.Close();
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
+                    finally
+                    {
+                        consumer.Close();
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
         }
+
     }
 }

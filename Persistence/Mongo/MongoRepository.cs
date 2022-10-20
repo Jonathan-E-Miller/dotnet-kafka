@@ -56,5 +56,15 @@ namespace Persistence.Mongo
         {
             await _collection.InsertOneAsync(entity);
         }
+
+        public Task<T> FindById(string id)
+        {
+            return Task.Run(() =>
+            {
+                var objectId = new ObjectId(id);
+                var filter = Builders<T>.Filter.Eq(doc => doc.Id, objectId);
+                return _collection.Find(filter).SingleOrDefaultAsync();
+            });
+        }
     }
 }

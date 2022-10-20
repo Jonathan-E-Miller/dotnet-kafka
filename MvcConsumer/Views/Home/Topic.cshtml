@@ -1,0 +1,24 @@
+﻿@model TopicViewModel
+
+<h1>Messages for topic: @Model.Name </h1>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Time of message</th>
+                <th scope="col">Sent by</th>
+                <th scope="col">Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var message in @Model.Messages)
+            {
+                <tr>
+                    <td>@message.Received</td>
+                    <td>@message.Sender</td>
+                    <td>@message.Text</td>
+                </tr>
+            }
+        </tbody>
+    </table>
