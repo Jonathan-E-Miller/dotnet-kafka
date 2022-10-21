@@ -40,31 +40,44 @@ namespace MvcConsumer.Controllers
 
         public async Task<IActionResult> Topic(string topicId)
         {
-            _logger.LogInformation($"HomeController.Topic called for {topicId}");
-            Topic match = await _repository.FindById(topicId);
-
-            TopicViewModel viewModel = new TopicViewModel()
+            try
             {
-                Name = "Unknow Topic",
-                Messages = new List<MessageViewModel>(),
-                LastReceived = DateTime.MinValue.ToString()
-            };
+                _logger.LogInformation($"HomeController.Topic called for {topicId}");
+                Topic match = await _repository.FindById(topicId);
 
-            if (match != null)
-            {
-                viewModel = new TopicViewModel()
+                TopicViewModel viewModel = new TopicViewModel()
                 {
-                    Name = match.Name,
-                    Messages = match.Messages.Select(x => new MessageViewModel()
-                    {
-                        Sender = x.User,
-                        Text = x.Text,
-                        Received = x.ReceivedAt
-                    }).ToList()
+                    Name = "Unknow Topic",
+                    Messages = new List<MessageViewModel>(),
+                    LastReceived = DateTime.MinValue.ToString()
                 };
+
+                if (match != null)
+                {
+                    viewModel = new TopicViewModel()
+                    {
+                        Name = match.Name,
+                        Messages = match.Messages.Select(x => new MessageViewModel()
+                        {
+                            Sender = x.User,
+                            Text = x.Text,
+                            Received = x.ReceivedAt
+                        }).ToList()
+                    };
+                }
+
+                return View(viewModel);
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
             }
 
-            return View(viewModel);
+            string requestId = Activity.Current?.Id ?? (HttpContext?.TraceIdentifier ?? "Unknown Request ID");
+
+            return View("Error", new ErrorViewModel()
+            {
+              RequestId = requestId
+            });
         }
 
         public IActionResult Privacy()
