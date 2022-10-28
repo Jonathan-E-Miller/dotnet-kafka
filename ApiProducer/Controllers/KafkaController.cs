@@ -43,7 +43,7 @@ namespace ApiProducer.Controllers
 
         [Route("api/produce")]
         [HttpPost]
-        public IActionResult Produce(KafkaMessageRequest request)
+        public async Task<IActionResult> Produce(KafkaMessageRequest request)
         {
             _logger.LogInformation($"API: Produce called with {request}");
 
@@ -51,7 +51,7 @@ namespace ApiProducer.Controllers
             {
                 try
                 {
-                    _kafkaContainer.ProduceMessage(request);
+                    await _kafkaContainer.ProduceMessage(request);
                 }
                 catch (UnknownTopicException ex)
                 {

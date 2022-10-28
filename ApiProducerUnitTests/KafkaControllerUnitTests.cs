@@ -1,5 +1,7 @@
+using ApiProducer;
 using ApiProducer.Controllers;
 using ApiProducer.Interfaces;
+using ApiProducer.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -64,6 +66,51 @@ namespace ApiProducerUnitTests
                 Assert.NotNull(result);
                 Assert.That(result?.StatusCode, Is.EqualTo(StatusCodes.Status500InternalServerError));
             });
+        }
+
+        [Test]
+        public async Task Produce_WhenCalledWithInvalidModel_ReturnsBadRequest()
+        {
+            _systemUnderTest.ModelState.AddModelError("key", "error");
+            IActionResult actionResult = await _systemUnderTest.Produce(new KafkaMessageRequest());
+            var result = actionResult as StatusCodeResult;
+            Assert.Multiple(() =>
+            {
+                Assert.NotNull(result);
+                Assert.That(result?.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+            });
+        }
+
+        [Test]
+        public async Task Produce_GivenKafkaContainerThrowsUnknownTopicException_ReturnsInternalServerError()
+        {
+            string exceptionMessage = "test message";
+            _kafka.Setup(x => x.ProduceMessage(It.IsAny<KafkaMessageRequest>())).Throws(new UnknownTopicException(exceptionMessage));
+            IActionResult actionResult = await _systemUnderTest.Produce(new KafkaMessageRequest());
+            var result = actionResult as ObjectResult;
+            Assert.Multiple(() =>
+            {
+                Assert.NotNull(result);
+                Assert.That(result?.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+                Assert.That(result?.Value, Is.EqualTo(exceptionMessage));
+            });
+
+        }
+
+        [Test]
+        public async Task Produce_GivenKafkaContainerThrowsGeneralException_ReturnsInternalServerError()
+        {
+            string exceptionMessage = "test message";
+            _kafka.Setup(x => x.ProduceMessage(It.IsAny<KafkaMessageRequest>())).Throws(new Exception(exceptionMessage));
+            IActionResult actionResult = await _systemUnderTest.Produce(new KafkaMessageRequest());
+            var result = actionResult as ObjectResult;
+            Assert.Multiple(() =>
+            {
+                Assert.NotNull(result);
+                Assert.That(result?.StatusCode, Is.EqualTo(StatusCodes.Status500InternalServerError));
+                Assert.That(result?.Value, Is.EqualTo(exceptionMessage));
+            });
+
         }
     }
 }
