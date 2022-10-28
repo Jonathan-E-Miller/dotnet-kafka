@@ -1,5 +1,6 @@
 ﻿using ApiProducer;
 using ApiProducer.Models;
+using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -14,6 +15,8 @@ namespace ApiProducerUnitTests
         private Mock<ILogger<KafkaContainer>> _loggerMock;
         private Mock<IConfiguration> _configurationMock;
         private Mock<IMongoRepository<Topic>> _repositoryMock;
+        private Mock<IAdminClient> _adminClientMock;
+        private Mock<IProducer<string, string>> _producerMock;
         private KafkaContainer _sut;
 
         [SetUp]
@@ -22,8 +25,10 @@ namespace ApiProducerUnitTests
             _loggerMock = new Mock<ILogger<KafkaContainer>>();
             _configurationMock = new Mock<IConfiguration>();
             _repositoryMock = new Mock<IMongoRepository<Topic>>();
+            _adminClientMock = new Mock<IAdminClient>();
+            _producerMock = new Mock<IProducer<string, string>>();
 
-            _sut = new KafkaContainer(_loggerMock.Object, _configurationMock.Object, _repositoryMock.Object);
+            _sut = new KafkaContainer(_loggerMock.Object, _repositoryMock.Object, _producerMock.Object, _adminClientMock.Object);
         }
 
         [Test]
