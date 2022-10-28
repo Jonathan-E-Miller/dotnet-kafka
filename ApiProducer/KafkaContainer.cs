@@ -2,6 +2,8 @@
 using ApiProducer.Models;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using Persistence.Models;
+using Persistence.Mongo;
 
 namespace ApiProducer
 {
@@ -9,11 +11,13 @@ namespace ApiProducer
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
+        private readonly IMongoRepository<Topic> _repository;
 
-        public KafkaContainer(ILogger<KafkaContainer> logger, IConfiguration configuration)
+        public KafkaContainer(ILogger<KafkaContainer> logger, IConfiguration configuration, IMongoRepository<Topic> repository)
         {
             _logger = logger;
             _configuration = configuration;
+            _repository = repository;
         }
 
         public async Task CreateTopic(string topicName)
@@ -35,6 +39,12 @@ namespace ApiProducer
 
         public async Task ProduceMessage(KafkaMessageRequest request)
         {
+            var topic = await _repository.FindOneAsync(x => x.Name == request.Topic);
+            if (topic == null)
+            {
+                throw new UnknownTopicException($"Topic {request.Topic} has not yet been created");
+            }
+
             var kafkaConfiguration = _configuration.GetSection("Kafka").GetChildren();
             var config = new List<KeyValuePair<string, string>>();
 

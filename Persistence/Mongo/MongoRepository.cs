@@ -41,7 +41,7 @@ namespace Persistence.Mongo
             return await _collection.Find(filterExpression).ToListAsync();
         }
 
-        public async Task<T> FindOneAsync(Expression<Func<T, bool>> filterExpression)
+        public async Task<T?> FindOneAsync(Expression<Func<T, bool>> filterExpression)
         {
             return await _collection.Find(filterExpression).FirstOrDefaultAsync();
         }

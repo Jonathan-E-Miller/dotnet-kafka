@@ -12,7 +12,7 @@ namespace Persistence.Mongo
         IQueryable<T> All();
         Task InsertOneAsync(T entity);
         Task<IEnumerable<T>> FilterBy(Expression<Func<T, bool>> filterExpression);
-        Task<T> FindOneAsync(Expression<Func<T, bool>> filterExpression);
+        Task<T?> FindOneAsync(Expression<Func<T, bool>> filterExpression);
         Task ReplaceOneAsync(T document);
 
         Task<T> FindById(string id);
