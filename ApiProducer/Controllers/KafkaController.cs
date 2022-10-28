@@ -53,6 +53,10 @@ namespace ApiProducer.Controllers
                 {
                     _kafkaContainer.ProduceMessage(request);
                 }
+                catch (UnknownTopicException ex)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
+                }
                 catch (Exception ex)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
